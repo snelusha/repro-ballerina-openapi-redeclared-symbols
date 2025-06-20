@@ -1,0 +1,119 @@
+openapi: 3.1.0
+info:
+  title: Sample Invoice-Payment API
+  description: |
+    A minimal mock API demonstrating use of `allOf` composition  
+    to merge payment and invoice schemas into a single resource.
+  version: 1.0.0
+  termsOfService: https://example.com/terms/
+  contact:
+    name: API Support
+    url: https://example.com/support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production server
+  - url: https://sandbox.api.example.com/v1
+    description: Sandbox server for testing
+
+tags:
+  - name: InvoicePayment
+    description: Operations on InvoicePayment resources
+
+paths:
+  /invoice-payments:
+    get:
+      tags:
+        - InvoicePayment
+      summary: List all InvoicePayment records
+      description: Retrieves an array of InvoicePayment resources.
+      operationId: listInvoicePayments
+      responses:
+        '200':
+          description: A JSON array of InvoicePayment objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InvoicePayment'
+
+    post:
+      tags:
+        - InvoicePayment
+      summary: Create a new InvoicePayment
+      description: Adds a new InvoicePayment resource.
+      operationId: createInvoicePayment
+      requestBody:
+        description: InvoicePayment object to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InvoicePayment'
+      responses:
+        '201':
+          description: InvoicePayment created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoicePayment'
+
+components:
+  schemas:
+    Payment:
+      type: object
+      description: Details of a payment transaction.
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the payment.
+        amount:
+          type: number
+          format: double
+          description: Amount paid.
+        currency:
+          type: string
+          description: ISO 4217 currency code.
+      required:
+        - amount
+        - currency
+      example:
+        id: "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        amount: 1500.75
+        currency: "USD"
+
+    Invoice:
+      type: object
+      description: Basic invoice metadata.
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier of the invoice.
+        description:
+          type: string
+          description: Brief description of the invoice.
+      required:
+        - id
+      example:
+        id: "4fa85f64-5717-4562-b3fc-2c963f66afa6"
+        description: "Invoice for web development services."
+
+    InvoicePayment:
+      allOf:
+        - $ref: '#/components/schemas/Payment'
+        - $ref: '#/components/schemas/Invoice'
+      description: |
+        Combined record containing both payment details  
+        and its associated invoice metadata.
+      example:
+        id: "5fa85f64-5717-4562-b3fc-2c963f66afa6"
+        amount: 1500.75
+        currency: "USD"
+        description: "Payment for Invoice #2025-0042"
